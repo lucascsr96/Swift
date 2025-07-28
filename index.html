@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .link-button { background: none; border: none; padding: 0; cursor: pointer; }
+
+        .chat-bg {
+            background-color: #0f172a; /* bg-slate-900 */
+        }
+        .status-ring {
+            padding: 2px;
+            background: linear-gradient(45deg, #38bdf8, #60a5fa); /* sky-400 to blue-400 */
+        }
+        .status-ring-viewed {
+            padding: 2px;
+            background: #475569; /* slate-600 */
+        }
+        .message-bubble:hover .action-buttons {
+            opacity: 1;
+        }
+        .active-chat {
+            background-color: #1e293b; /* bg-slate-800 */
+        }
+        /* Animação do indicador "a escrever" */
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #7dd3fc; /* sky-300 */
+            animation: typing 1.4s infinite;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-800 text-slate-200">
+
+    <div id="app" class="w-full h-screen">
+        
+        <div id="auth-view" class="w-full h-full flex items-center justify-center fade-in bg-slate-900">
+            <div class="max-w-md w-full">
+                <div id="login-view" class="bg-slate-800 p-8 rounded-2xl shadow-lg text-center border border-slate-700">
+                    <h1 class="text-3xl font-bold text-white mb-2">Bem-vindo ao Swift</h1>
+                    <p class="text-slate-400 mb-6">Entre na sua conta para continuar.</p>
+                    <div id="login-error" class="text-red-400 mb-4 text-sm font-medium h-5"></div>
+                    <form id="login-form">
+                        <div class="space-y-4">
+                            <input type="text" id="username-input" placeholder="Nome de utilizador" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition" required>
+                            <input type="password" id="password-input" placeholder="Palavra-passe" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition" required>
+                        </div>
+                        <button type="submit" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg mt-6 hover:bg-sky-700 transition">Entrar</button>
+                    </form>
+                    <p class="mt-6 text-sm text-slate-400">
+                        Não tem uma conta? 
+                        <button id="show-register-btn" class="link-button font-semibold text-sky-400 hover:underline">Registe-se</button>
+                    </p>
+                </div>
+                <div id="register-view" class="hidden bg-slate-800 p-8 rounded-2xl shadow-lg text-center border border-slate-700">
+                    <h1 class="text-3xl font-bold text-white mb-2">Crie a Sua Conta</h1>
+                    <div class="mb-4">
+                        <label for="register-pfp-input" class="cursor-pointer">
+                            <img id="pfp-preview" src="https://placehold.co/100x100/1e293b/94a3b8?text=Perfil" class="w-24 h-24 rounded-full mx-auto border-2 border-slate-600 object-cover hover:border-sky-500 transition">
+                        </label>
+                        <input type="file" id="register-pfp-input" class="hidden" accept="image/*">
+                        <p class="text-sm text-slate-500 mt-2">Clique no círculo para adicionar uma foto</p>
+                    </div>
+                    <div id="register-error" class="text-red-400 mb-4 text-sm font-medium h-5"></div>
+                    <form id="register-form">
+                        <div class="space-y-4">
+                            <input type="text" id="register-username-input" placeholder="Escolha um nome de utilizador" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-sky-500" required>
+                            <input type="password" id="register-password-input" placeholder="Crie uma palavra-passe" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-sky-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg mt-6 hover:bg-sky-700 transition">Registar</button>
+                    </form>
+                    <p class="mt-6 text-sm text-slate-400">
+                        Já tem uma conta? 
+                        <button id="show-login-btn" class="link-button font-semibold text-sky-400 hover:underline">Faça Login</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="chat-view" class="hidden fade-in w-full h-full md:flex">
+            <div id="chat-list-panel" class="w-full md:w-1/3 lg:w-1-4 bg-slate-800 border-r border-slate-700 flex-col h-full md:flex">
+                <header class="p-3 bg-slate-800/70 backdrop-blur-sm border-b border-slate-700 flex justify-between items-center flex-shrink-0">
+                    <div class="flex items-center gap-3">
+                        <img id="header-pfp" src="" class="w-10 h-10 rounded-full object-cover">
+                        <span id="current-user" class="font-semibold text-slate-200"></span>
+                    </div>
+                    <div>
+                        <button id="logout-btn" class="ml-2 text-slate-400 hover:text-red-400 text-xl"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </header>
+                
+                <div class="flex border-b border-slate-700 flex-shrink-0">
+                    <button id="feed-tab-btn" class="relative flex-1 p-3 font-semibold uppercase tracking-wider text-sm border-b-2 border-sky-500 text-sky-400">Feed</button>
+                    <button id="chats-tab-btn" class="relative flex-1 p-3 font-semibold uppercase tracking-wider text-sm text-slate-400">
+                        Conversas
+                        <span id="chats-notification-badge" class="hidden absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"></span>
+                    </button>
+                    <button id="status-tab-btn" class="relative flex-1 p-3 font-semibold uppercase tracking-wider text-sm text-slate-400">
+                        Status
+                        <span id="status-notification-dot" class="hidden absolute top-3 right-3 bg-red-500 rounded-full h-2.5 w-2.5"></span>
+                    </button>
+                    <button id="contacts-tab-btn" class="relative flex-1 p-3 font-semibold uppercase tracking-wider text-sm text-slate-400">Contatos</button>
+                </div>
+
+                <div class="flex-grow overflow-y-auto custom-scrollbar">
+                    <div id="feed-list"></div>
+                    <div id="conversation-list" class="hidden"></div>
+                    <div id="status-list" class="hidden"></div>
+                    <div id="contacts-list" class="hidden"></div>
+                </div>
+            </div>
+
+            <div id="conversation-panel" class="w-full md:w-2/3 lg:w-3/4 flex-col h-full hidden md:flex">
+                <div id="welcome-panel" class="flex-grow flex flex-col items-center justify-center text-center p-8 bg-slate-900">
+                    <h2 class="text-2xl font-medium text-slate-300">Bem-vindo ao Swift</h2>
+                    <p class="text-slate-500 mt-2">Selecione uma conversa para começar.</p>
+                </div>
+                <div id="chat-window" class="hidden flex-grow flex-col min-h-0">
+                    <header class="p-3 bg-slate-800/70 backdrop-blur-sm border-b border-slate-700 flex items-center gap-3 flex-shrink-0">
+                        <button id="back-to-list-btn" class="md:hidden text-slate-400 hover:text-sky-400 text-xl mr-2"><i class="fas fa-arrow-left"></i></button>
+                        <img id="chat-partner-pfp" src="" class="w-10 h-10 rounded-full object-cover">
+                        <div>
+                            <span id="chat-partner-name" class="font-semibold text-slate-200"></span>
+                            <div id="typing-indicator-container" class="h-4"></div>
+                        </div>
+                    </header>
+                    <div id="messages-area" class="flex-grow p-4 overflow-y-auto custom-scrollbar chat-bg flex flex-col gap-3"></div>
+                    <footer class="p-3 bg-slate-800/70 backdrop-blur-sm border-t border-slate-700 flex-shrink-0">
+                        <div id="reply-preview-container" class="hidden bg-slate-700 p-2 rounded-t-lg text-sm">
+                            <div class="flex justify-between items-center">
+                                <p class="font-semibold text-sky-400">A responder a...</p>
+                                <button id="cancel-reply-btn" class="text-slate-400 hover:text-white">&times;</button>
+                            </div>
+                            <p id="reply-preview-text" class="text-slate-300 truncate"></p>
+                        </div>
+                        <form id="send-message-form" class="flex items-center gap-3">
+                            <label for="file-input" class="cursor-pointer text-slate-400 hover:text-sky-400 text-xl"><i class="fas fa-paperclip"></i></label>
+                            <input type="file" id="file-input" class="hidden" accept="image/*,video/*">
+                            <input type="text" id="message-input" placeholder="Digite uma mensagem" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-full focus:ring-2 focus:ring-sky-500" autocomplete="off">
+                            <button type="submit" class="w-12 h-12 bg-sky-600 text-white rounded-full flex items-center justify-center text-xl hover:bg-sky-700 transition"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                        <div id="file-preview-container" class="mt-2 text-sm text-slate-500"></div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+
+        <div id="new-post-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-40">
+            <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-lg border border-slate-700">
+                <h2 id="post-modal-title" class="text-xl font-bold mb-4 text-white">Criar Nova Publicação</h2>
+                <form id="new-post-form">
+                    <div class="mb-4">
+                        <textarea id="post-text-input" rows="4" placeholder="O que está a pensar?" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg"></textarea>
+                    </div>
+                    <div id="post-media-preview-container" class="mb-4"></div>
+                    <div class="flex justify-between items-center">
+                        <label for="post-file-input" class="cursor-pointer text-sky-400 hover:text-sky-500 text-xl"><i class="fas fa-camera"></i></label>
+                        <input type="file" id="post-file-input" class="hidden" accept="image/*">
+                        <div class="flex gap-3">
+                            <button type="button" id="cancel-new-post-btn" class="bg-slate-600 text-slate-200 font-semibold py-2 px-4 rounded-lg hover:bg-slate-700">Cancelar</button>
+                            <button type="submit" class="bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-700">Publicar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="add-contact-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-40">
+            <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-sm border border-slate-700 flex flex-col" style="height: 70vh;">
+                <h2 class="text-xl font-bold mb-4 text-white flex-shrink-0">Descobrir Contatos</h2>
+                <div class="mb-4 flex-shrink-0">
+                    <input type="text" id="contact-search-input" placeholder="Pesquisar utilizadores..." class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg">
+                </div>
+                <div id="available-contacts-list" class="flex-grow overflow-y-auto custom-scrollbar">
+                    </div>
+                <div class="flex justify-end gap-3 mt-4 flex-shrink-0">
+                    <button type="button" id="cancel-add-contact-btn" class="bg-slate-600 text-slate-200 font-semibold py-2 px-4 rounded-lg hover:bg-slate-700">Fechar</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="confirm-delete-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+            <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-sm border border-slate-700 text-center">
+                <h2 class="text-xl font-bold mb-4 text-white">Confirmar</h2>
+                <p id="confirm-delete-text" class="text-slate-300 mb-6">Tem a certeza que deseja apagar isto?</p>
+                <div class="flex justify-center gap-4">
+                    <button id="cancel-delete-btn" class="bg-slate-600 text-slate-200 font-semibold py-2 px-6 rounded-lg hover:bg-slate-700">Cancelar</button>
+                    <button id="confirm-delete-btn" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700">Apagar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="set-status-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-40">
+            <div class="bg-slate-800 p-6 rounded-lg shadow-xl w-full max-w-sm border border-slate-700">
+                <h2 class="text-xl font-bold mb-4 text-white">Atualizar o seu Status</h2>
+                <form id="set-status-form">
+                    <div id="status-media-preview-container" class="mb-4"></div>
+                    <div class="mb-4"><label for="status-input" class="block text-sm font-medium text-slate-400 mb-1">Legenda (opcional):</label><textarea id="status-input" rows="2" placeholder="O que está a pensar?" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg"></textarea></div>
+                    <div class="flex justify-between items-center">
+                        <label for="status-file-input" class="cursor-pointer text-sky-400 hover:text-sky-500 text-xl"><i class="fas fa-paperclip"></i></label>
+                        <input type="file" id="status-file-input" class="hidden" accept="image/*,video/*">
+                        <div class="flex gap-3"><button type="button" id="cancel-set-status-btn" class="bg-slate-600 text-slate-200 font-semibold py-2 px-4 rounded-lg hover:bg-slate-700">Cancelar</button><button type="submit" class="bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-700">Guardar</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-status-modal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center p-4 z-50 fade-in">
+            <div class="w-full max-w-md h-full flex flex-col justify-center text-white text-center">
+                <div class="flex-shrink-0 mb-4"><div class="flex items-center gap-3 p-2"><img id="status-viewer-pfp" src="" class="w-10 h-10 rounded-full object-cover border-2 border-white"><div><p id="status-viewer-name" class="font-semibold text-left"></p><p id="status-viewer-time" class="text-xs text-slate-300 text-left"></p></div></div></div>
+                <div id="status-viewer-media-container" class="flex-grow flex items-center justify-center h-full min-h-0"><img id="status-viewer-image" src="" class="hidden max-w-full max-h-full object-contain"><video id="status-viewer-video" src="" controls class="hidden max-w-full max-h-full"></video></div>
+                <p id="status-viewer-text" class="flex-shrink-0 text-lg whitespace-pre-wrap p-4 bg-black bg-opacity-50 rounded-b-lg"></p>
+            </div>
+            <button id="close-status-viewer-btn" class="absolute top-4 right-4 text-white text-3xl opacity-75 hover:opacity-100">&times;</button>
+        </div>
+        
+        <div id="reaction-panel" class="hidden absolute bg-slate-700 shadow-lg rounded-full p-1 flex gap-1 z-30 border border-slate-600">
+            <span class="cursor-pointer text-2xl hover:scale-125 transition-transform">👍</span>
+            <span class="cursor-pointer text-2xl hover:scale-125 transition-transform">❤️</span>
+            <span class="cursor-pointer text-2xl hover:scale-125 transition-transform">😂</span>
+            <span class="cursor-pointer text-2xl hover:scale-125 transition-transform">😮</span>
+            <span class="cursor-pointer text-2xl hover:scale-125 transition-transform">😢</span>
+            <span class="cursor-pointer text-2xl hover:scale-125 transition-transform">🙏</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Seletores de Elementos ---
+            const authView = document.getElementById('auth-view');
+            const loginView = document.getElementById('login-view');
+            const registerView = document.getElementById('register-view');
+            const chatView = document.getElementById('chat-view');
+            const loginForm = document.getElementById('login-form');
+            const usernameInput = document.getElementById('username-input');
+            const passwordInput = document.getElementById('password-input');
+            const loginError = document.getElementById('login-error');
+            const registerForm = document.getElementById('register-form');
+            const registerUsernameInput = document.getElementById('register-username-input');
+            const registerPasswordInput = document.getElementById('register-password-input');
+            const registerError = document.getElementById('register-error');
+            const showRegisterBtn = document.getElementById('show-register-btn');
+            const showLoginBtn = document.getElementById('show-login-btn');
+            const currentUserSpan = document.getElementById('current-user');
+            const logoutBtn = document.getElementById('logout-btn');
+            const sendMessageForm = document.getElementById('send-message-form');
+            const messageInput = document.getElementById('message-input');
+            const fileInput = document.getElementById('file-input');
+            const filePreviewContainer = document.getElementById('file-preview-container');
+            const registerPfpInput = document.getElementById('register-pfp-input');
+            const pfpPreview = document.getElementById('pfp-preview');
+            const headerPfp = document.getElementById('header-pfp');
+            const conversationList = document.getElementById('conversation-list');
+            const welcomePanel = document.getElementById('welcome-panel');
+            const chatWindow = document.getElementById('chat-window');
+            const chatPartnerPfp = document.getElementById('chat-partner-pfp');
+            const chatPartnerName = document.getElementById('chat-partner-name');
+            const messagesArea = document.getElementById('messages-area');
+            const typingIndicatorContainer = document.getElementById('typing-indicator-container');
+            
+            // Seletores de Status
+            const statusList = document.getElementById('status-list');
+            const setStatusModal = document.getElementById('set-status-modal');
+            const setStatusForm = document.getElementById('set-status-form');
+            const statusInput = document.getElementById('status-input');
+            const statusFileInput = document.getElementById('status-file-input');
+            const statusMediaPreviewContainer = document.getElementById('status-media-preview-container');
+            const cancelSetStatusBtn = document.getElementById('cancel-set-status-btn');
+            const viewStatusModal = document.getElementById('view-status-modal');
+            const statusViewerPfp = document.getElementById('status-viewer-pfp');
+            const statusViewerName = document.getElementById('status-viewer-name');
+            const statusViewerTime = document.getElementById('status-viewer-time');
+            const statusViewerImage = document.getElementById('status-viewer-image');
+            const statusViewerVideo = document.getElementById('status-viewer-video');
+            const statusViewerText = document.getElementById('status-viewer-text');
+            const closeStatusViewerBtn = document.getElementById('close-status-viewer-btn');
+            
+            // Seletores de Reação e Resposta
+            const reactionPanel = document.getElementById('reaction-panel');
+            const replyPreviewContainer = document.getElementById('reply-preview-container');
+            const replyPreviewText = document.getElementById('reply-preview-text');
+            const cancelReplyBtn = document.getElementById('cancel-reply-btn');
+            let currentMessageIdForReaction = null;
+            let replyingToMessageId = null;
+
+            // Seletores de Painel Mobile
+            const chatListPanel = document.getElementById('chat-list-panel');
+            const conversationPanel = document.getElementById('conversation-panel');
+            const backToListBtn = document.getElementById('back-to-list-btn');
+
+            // Seletores de Abas
+            const feedTabBtn = document.getElementById('feed-tab-btn');
+            const chatsTabBtn = document.getElementById('chats-tab-btn');
+            const statusTabBtn = document.getElementById('status-tab-btn');
+            const contactsTabBtn = document.getElementById('contacts-tab-btn');
+            const feedList = document.getElementById('feed-list');
+            const contactsList = document.getElementById('contacts-list');
+            const chatsNotificationBadge = document.getElementById('chats-notification-badge');
+            const statusNotificationDot = document.getElementById('status-notification-dot');
+
+            // Seletores do Feed
+            const newPostModal = document.getElementById('new-post-modal');
+            const newPostForm = document.getElementById('new-post-form');
+            const postModalTitle = document.getElementById('post-modal-title');
+            const postTextInput = document.getElementById('post-text-input');
+            const postFileInput = document.getElementById('post-file-input');
+            const postMediaPreviewContainer = document.getElementById('post-media-preview-container');
+            const cancelNewPostBtn = document.getElementById('cancel-new-post-btn');
+            let selectedPostFile = null;
+            let editingPostId = null;
+
+            // Seletores de Contatos
+            const addContactModal = document.getElementById('add-contact-modal');
+            const contactSearchInput = document.getElementById('contact-search-input');
+            const availableContactsList = document.getElementById('available-contacts-list');
+            const cancelAddContactBtn = document.getElementById('cancel-add-contact-btn');
+
+            // Seletores de Confirmação
+            const confirmDeleteModal = document.getElementById('confirm-delete-modal');
+            const confirmDeleteText = document.getElementById('confirm-delete-text');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            let deleteCallback = null;
+
+            let currentUser = null;
+            let activeChatPartner = null;
+            let selectedFile = null;
+            let selectedPfp = null;
+            let selectedStatusFile = null;
+            const defaultPfp = 'https://placehold.co/100x100/1e293b/94a3b8?text=?';
+
+            // --- Lógica de Dados ---
+            const getUsers = () => JSON.parse(localStorage.getItem('swift_users')) || [];
+            const saveUsers = (users) => localStorage.setItem('swift_users', JSON.stringify(users));
+            const getMessages = () => JSON.parse(localStorage.getItem('swift_messages')) || [];
+            const saveMessages = (messages) => {
+                try {
+                    localStorage.setItem('swift_messages', JSON.stringify(messages));
+                } catch (e) {
+                    console.error("Erro ao salvar no localStorage: ", e);
+                    alert('Erro: Armazenamento cheio ou arquivo muito grande!');
+                }
+            };
+            const getPosts = () => JSON.parse(localStorage.getItem('swift_posts')) || [];
+            const savePosts = (posts) => {
+                try {
+                    localStorage.setItem('swift_posts', JSON.stringify(posts));
+                } catch (e) {
+                    console.error("Erro ao salvar no localStorage: ", e);
+                    alert('Erro: Armazenamento cheio ou arquivo muito grande!');
+                }
+            };
+
+            // --- Lógica de Autenticação ---
+            registerPfpInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => { selectedPfp = event.target.result; pfpPreview.src = selectedPfp; };
+                reader.readAsDataURL(file);
+            });
+            showRegisterBtn.addEventListener('click', () => { loginView.classList.add('hidden'); registerView.classList.remove('hidden'); });
+            showLoginBtn.addEventListener('click', () => { registerView.classList.add('hidden'); loginView.classList.remove('hidden'); });
+            
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = registerUsernameInput.value.trim();
+                const password = registerPasswordInput.value.trim();
+                const users = getUsers();
+                if (users.find(user => user.username.toLowerCase() === username.toLowerCase())) {
+                    registerError.textContent = 'Este nome de usuário já existe.'; return;
+                }
+                users.push({ username, password, pfp: selectedPfp, status: null, viewedStatus: [], contacts: [] });
+                saveUsers(users);
+                sessionStorage.setItem('swift_user', username);
+                checkLogin();
+            });
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                const user = getUsers().find(u => u.username.toLowerCase() === username.toLowerCase());
+                if (user && user.password === password) {
+                    sessionStorage.setItem('swift_user', username);
+                    checkLogin();
+                } else {
+                    loginError.textContent = 'Nome de usuário ou senha inválidos.';
+                }
+            });
+            const checkLogin = () => {
+                currentUser = sessionStorage.getItem('swift_user');
+                if (currentUser) {
+                    const user = getUsers().find(u => u.username.toLowerCase() === currentUser.toLowerCase());
+                    currentUserSpan.textContent = currentUser;
+                    headerPfp.src = user?.pfp || defaultPfp;
+                    authView.classList.add('hidden');
+                    chatView.classList.remove('hidden');
+                    chatListPanel.classList.remove('hidden');
+                    conversationPanel.classList.add('hidden', 'md:flex');
+                    setActiveTab('feed');
+                    renderLists();
+                    showWelcomePanel();
+                } else {
+                    authView.classList.remove('hidden');
+                    chatView.classList.add('hidden');
+                }
+            };
+            logoutBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('swift_user');
+                currentUser = null;
+                activeChatPartner = null;
+                checkLogin();
+            });
+
+            // --- Lógica da Interface do Chat ---
+            const showWelcomePanel = () => {
+                if (window.innerWidth >= 768) {
+                    welcomePanel.classList.remove('hidden');
+                    chatWindow.classList.add('hidden');
+                }
+                activeChatPartner = null;
+            };
+
+            const openChat = (partnerUsername) => {
+                activeChatPartner = partnerUsername;
+                const partner = getUsers().find(u => u.username.toLowerCase() === partnerUsername.toLowerCase());
+                chatPartnerName.textContent = partner.username;
+                chatPartnerPfp.src = partner.pfp || defaultPfp;
+                
+                if (window.innerWidth < 768) {
+                    chatListPanel.classList.add('hidden');
+                }
+                conversationPanel.classList.remove('hidden');
+                welcomePanel.classList.add('hidden');
+                chatWindow.classList.remove('hidden');
+                
+                const messages = getMessages();
+                let messagesUpdated = false;
+                messages.forEach(msg => {
+                    if (msg.to.toLowerCase() === currentUser.toLowerCase() && msg.from.toLowerCase() === partnerUsername.toLowerCase() && !msg.read) {
+                        msg.read = true;
+                        messagesUpdated = true;
+                    }
+                });
+                if (messagesUpdated) {
+                    saveMessages(messages);
+                }
+
+                renderActiveChat();
+                document.querySelectorAll('#conversation-list > div').forEach(el => {
+                    el.classList.remove('active-chat');
+                    if (el.dataset.username === partnerUsername) {
+                        el.classList.add('active-chat');
+                    }
+                });
+            };
+
+            backToListBtn.addEventListener('click', () => {
+                activeChatPartner = null;
+                chatListPanel.classList.remove('hidden');
+                conversationPanel.classList.add('hidden');
+            });
+
+            // Lógica das Abas
+            const setActiveTab = (activeTab) => {
+                const tabs = {
+                    feed: { btn: feedTabBtn, list: feedList },
+                    chats: { btn: chatsTabBtn, list: conversationList },
+                    status: { btn: statusTabBtn, list: statusList },
+                    contacts: { btn: contactsTabBtn, list: contactsList }
+                };
+
+                for (const key in tabs) {
+                    const tab = tabs[key];
+                    if (key === activeTab) {
+                        tab.list.classList.remove('hidden');
+                        tab.btn.classList.add('border-sky-500', 'text-sky-400');
+                        tab.btn.classList.remove('text-slate-400');
+                    } else {
+                        tab.list.classList.add('hidden');
+                        tab.btn.classList.remove('border-sky-500', 'text-sky-400');
+                        tab.btn.classList.add('text-slate-400');
+                    }
+                }
+            };
+
+            feedTabBtn.addEventListener('click', () => setActiveTab('feed'));
+            chatsTabBtn.addEventListener('click', () => setActiveTab('chats'));
+            statusTabBtn.addEventListener('click', () => setActiveTab('status'));
+            contactsTabBtn.addEventListener('click', () => setActiveTab('contacts'));
+
+            const renderLists = () => {
+                if (!currentUser) return;
+                const messages = getMessages();
+                const users = getUsers();
+                const posts = getPosts();
+                
+                const me = users.find(u => u.username.toLowerCase() === currentUser.toLowerCase());
+
+                if (!me) {
+                    console.error("Dados do utilizador atual não encontrados. A forçar o logout para resolver a inconsistência.");
+                    logoutBtn.click();
+                    return;
+                }
+
+                // Lógica de Notificações
+                const unreadMessagesCount = messages.filter(msg => msg.to.toLowerCase() === currentUser.toLowerCase() && !msg.read).length;
+                if (unreadMessagesCount > 0) {
+                    chatsNotificationBadge.textContent = unreadMessagesCount;
+                    chatsNotificationBadge.classList.remove('hidden');
+                } else {
+                    chatsNotificationBadge.classList.add('hidden');
+                }
+
+                const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
+                const myViewedStatuses = me.viewedStatus || [];
+                const unviewedStatusCount = users.filter(u => {
+                    if (u.username.toLowerCase() === currentUser.toLowerCase() || !u.status || new Date(u.status.timestamp) < twentyFourHoursAgo) {
+                        return false;
+                    }
+                    const viewedEntry = myViewedStatuses.find(s => s.username === u.username);
+                    return !viewedEntry || viewedEntry.timestamp !== u.status.timestamp;
+                }).length;
+
+                if (unviewedStatusCount > 0) {
+                    statusNotificationDot.classList.remove('hidden');
+                } else {
+                    statusNotificationDot.classList.add('hidden');
+                }
+
+                // Renderizar Status
+                statusList.innerHTML = '';
+                const myStatusItem = document.createElement('div');
+                myStatusItem.className = 'p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-700 transition border-b border-slate-700';
+                const hasMyStatus = me.status && (Date.now() - new Date(me.status.timestamp) < (24 * 60 * 60 * 1000));
+                myStatusItem.innerHTML = `
+                    <div class="relative">
+                        <img src="${me.pfp || defaultPfp}" class="w-12 h-12 rounded-full object-cover">
+                        <div class="absolute bottom-0 right-0 bg-sky-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs border-2 border-slate-800">+</div>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-slate-200">Meu Status</p>
+                        <p class="text-sm text-slate-400">${hasMyStatus ? 'Toque para ver' : 'Toque para adicionar'}</p>
+                    </div>
+                `;
+                
+                // ==========================================================
+                //  CÓDIGO CORRIGIDO APLICADO AQUI
+                // ==========================================================
+                myStatusItem.addEventListener('click', () => {
+                    if (hasMyStatus) {
+                        openStatusViewer(currentUser);
+                    } else {
+                        openSetStatusModal();
+                    }
+                });
+                statusList.appendChild(myStatusItem);
+
+                users.filter(u => u.username.toLowerCase() !== currentUser.toLowerCase() && u.status && new Date(u.status.timestamp) > twentyFourHoursAgo)
+                    .forEach(user => {
+                        const viewedEntry = myViewedStatuses.find(s => s.username === user.username);
+                        const isViewed = viewedEntry && viewedEntry.timestamp === user.status.timestamp;
+                        const ringClass = isViewed ? 'status-ring-viewed' : 'status-ring';
+
+                        const userStatusItem = document.createElement('div');
+                        userStatusItem.className = 'p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-700 transition border-b border-slate-700';
+                        userStatusItem.innerHTML = `
+                            <div class="rounded-full ${ringClass}">
+                                <img src="${user.pfp || defaultPfp}" class="w-12 h-12 rounded-full object-cover border-2 border-slate-800">
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-200">${user.username}</p>
+                                <p class="text-sm text-slate-400">${timeAgo(user.status.timestamp)}</p>
+                            </div>
+                        `;
+                        userStatusItem.addEventListener('click', () => openStatusViewer(user.username));
+                        statusList.appendChild(userStatusItem);
+                    });
+
+                // Renderizar Conversas
+                const chatPartners = new Set();
+                messages.forEach(msg => {
+                    if (msg.from.toLowerCase() === currentUser.toLowerCase()) chatPartners.add(msg.to);
+                    if (msg.to.toLowerCase() === currentUser.toLowerCase()) chatPartners.add(msg.from);
+                });
+
+                conversationList.innerHTML = '';
+                chatPartners.forEach(partnerName => {
+                    const partner = users.find(u => u.username.toLowerCase() === partnerName.toLowerCase());
+                    if (!partner) return;
+                    const lastMessage = messages.filter(m => (m.from.toLowerCase() === currentUser.toLowerCase() && m.to.toLowerCase() === partnerName.toLowerCase()) || (m.from.toLowerCase() === partnerName.toLowerCase() && m.to.toLowerCase() === currentUser.toLowerCase())).pop();
+                    if (!lastMessage) return;
+                    let lastMessageSnippet = lastMessage.content || (lastMessage.file ? '📷 Mídia' : 'Mensagem');
+                    if (lastMessageSnippet.length > 25) lastMessageSnippet = lastMessageSnippet.substring(0, 25) + '...';
+                    const el = document.createElement('div');
+                    el.className = 'p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-700 transition border-b border-slate-700';
+                    el.dataset.username = partner.username;
+                    el.innerHTML = `
+                        <img src="${partner.pfp || defaultPfp}" class="w-12 h-12 rounded-full object-cover">
+                        <div class="flex-grow overflow-hidden"><p class="font-semibold text-slate-200">${partner.username}</p><p class="text-sm text-slate-400 truncate">${lastMessageSnippet}</p></div>`;
+                    el.addEventListener('click', () => openChat(partner.username));
+                    conversationList.appendChild(el);
+                });
+
+                // Renderizar Feed
+                feedList.innerHTML = '';
+                const createPostButton = document.createElement('div');
+                createPostButton.className = 'p-4 border-b border-slate-700';
+                createPostButton.innerHTML = `<button id="new-post-btn" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 transition">Criar Publicação</button>`;
+                feedList.appendChild(createPostButton);
+                
+                posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(post => {
+                    const author = users.find(u => u.username.toLowerCase() === post.author.toLowerCase());
+                    const postEl = document.createElement('div');
+                    postEl.className = 'bg-slate-800 border-b border-slate-700 p-4 post-container';
+                    postEl.dataset.postId = post.id;
+                    
+                    const likedByMe = post.likes.includes(currentUser);
+
+                    let commentsHtml = '';
+                    if (post.comments.length > 0) {
+                        commentsHtml = '<div class="mt-3 space-y-2">';
+                        post.comments.forEach(comment => {
+                            const commentAuthor = users.find(u => u.username.toLowerCase() === comment.author.toLowerCase());
+                            commentsHtml += `
+                                <div class="flex items-start gap-2">
+                                    <img src="${commentAuthor?.pfp || defaultPfp}" class="w-6 h-6 rounded-full object-cover mt-1">
+                                    <div class="bg-slate-700 rounded-lg px-3 py-1.5">
+                                        <p class="font-semibold text-sm text-slate-200">${comment.author}</p>
+                                        <p class="text-sm text-slate-300">${comment.text}</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        commentsHtml += '</div>';
+                    }
+
+                    postEl.innerHTML = `
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <img src="${author?.pfp || defaultPfp}" class="w-10 h-10 rounded-full object-cover">
+                                <div>
+                                    <p class="font-semibold text-slate-200">${post.author}</p>
+                                    <p class="text-xs text-slate-500">${timeAgo(post.timestamp)}</p>
+                                </div>
+                            </div>
+                            ${post.author.toLowerCase() === currentUser.toLowerCase() ? `
+                            <div class="relative post-menu-container">
+                                <button class="post-menu-btn text-slate-400 hover:text-white"><i class="fas fa-ellipsis-h"></i></button>
+                                <div class="post-menu-options hidden absolute right-0 top-6 bg-slate-700 rounded-md shadow-lg z-10 border border-slate-600">
+                                    <button class="edit-post-btn block w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-600" data-post-id="${post.id}">Editar</button>
+                                    <button class="delete-post-btn block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-600" data-post-id="${post.id}">Apagar</button>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <p class="text-slate-300 whitespace-pre-wrap mb-3">${post.text}</p>
+                        ${post.image ? `<img src="${post.image}" class="rounded-lg max-w-full h-auto mb-3">` : ''}
+                        <div class="flex items-center gap-4 text-slate-400">
+                            <button class="like-btn hover:text-red-500 flex items-center gap-2" data-post-id="${post.id}">
+                                <i class="${likedByMe ? 'fas' : 'far'} fa-heart ${likedByMe ? 'text-red-500' : ''}"></i>
+                                <span>${post.likes.length}</span>
+                            </button>
+                            <button class="comment-btn hover:text-sky-400 flex items-center gap-2" data-post-id="${post.id}">
+                                <i class="far fa-comment"></i>
+                                <span>${post.comments.length}</span>
+                            </button>
+                        </div>
+                        <div class="comments-section hidden mt-4">
+                            ${commentsHtml}
+                            <form class="comment-form flex items-center gap-2 mt-3">
+                                <input type="text" placeholder="Escreva um comentário..." class="w-full px-3 py-1.5 bg-slate-700 border border-slate-600 text-white rounded-full text-sm" required>
+                                <button type="submit" class="text-sky-400 hover:text-sky-500 font-semibold">Publicar</button>
+                            </form>
+                        </div>
+                    `;
+                    feedList.appendChild(postEl);
+                });
+
+                // Renderizar Contatos
+                contactsList.innerHTML = '';
+                const addContactButton = document.createElement('div');
+                addContactButton.className = 'p-4 border-b border-slate-700';
+                addContactButton.innerHTML = `<button id="add-contact-btn" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-700 transition">Adicionar Contato</button>`;
+                contactsList.appendChild(addContactButton);
+                
+                (me.contacts || []).forEach(contactName => {
+                    const contact = users.find(u => u.username.toLowerCase() === contactName.toLowerCase());
+                    if (!contact) return;
+                    const el = document.createElement('div');
+                    el.className = 'p-3 flex items-center gap-3 cursor-pointer hover:bg-slate-700 transition border-b border-slate-700';
+                    el.dataset.username = contact.username;
+                    el.innerHTML = `
+                        <img src="${contact.pfp || defaultPfp}" class="w-12 h-12 rounded-full object-cover">
+                        <div class="flex-grow overflow-hidden"><p class="font-semibold text-slate-200">${contact.username}</p></div>`;
+                    contactsList.appendChild(el);
+                });
+            };
+
+            const renderActiveChat = () => {
+                if (!activeChatPartner) return;
+                const messages = getMessages();
+                const chatMessages = messages.filter(msg =>
+                    (msg.from.toLowerCase() === currentUser.toLowerCase() && msg.to.toLowerCase() === activeChatPartner.toLowerCase()) ||
+                    (msg.from.toLowerCase() === activeChatPartner.toLowerCase() && msg.to.toLowerCase() === currentUser.toLowerCase())
+                ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                messagesArea.innerHTML = '';
+                chatMessages.forEach(msg => {
+                    const isSent = msg.from.toLowerCase() === currentUser.toLowerCase();
+                    const el = document.createElement('div');
+                    el.className = `flex flex-col ${isSent ? 'items-end' : 'items-start'}`;
+                    
+                    const bubble = document.createElement('div');
+                    bubble.className = `message-bubble relative max-w-xs md:max-w-md p-2 rounded-lg shadow ${isSent ? 'bg-sky-700' : 'bg-slate-700'}`;
+                    bubble.dataset.messageId = msg.id;
+
+                    let mediaHtml = '';
+                    if (msg.file) {
+                        if (msg.file.type.startsWith('image/')) mediaHtml = `<img src="${msg.file.data}" class="mt-1 rounded-lg max-w-full h-auto">`;
+                        else if (msg.file.type.startsWith('video/')) mediaHtml = `<video src="${msg.file.data}" controls class="mt-1 rounded-lg max-w-full h-auto"></video>`;
+                    }
+                    
+                    const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const readReceiptHtml = isSent ? `<span class="ml-2 text-xs ${msg.read ? 'text-sky-400' : 'text-slate-400'}"><i class="fas fa-check-double"></i></span>` : '';
+
+                    let reactionsHtml = '';
+                    if (msg.reactions && msg.reactions.length > 0) {
+                        const groupedReactions = msg.reactions.reduce((acc, reaction) => {
+                            acc[reaction.emoji] = (acc[reaction.emoji] || 0) + 1;
+                            return acc;
+                        }, {});
+                        reactionsHtml = `<div class="absolute -bottom-3 right-2 flex gap-1">`;
+                        for (const [emoji, count] of Object.entries(groupedReactions)) {
+                            reactionsHtml += `<div class="bg-slate-600 text-xs rounded-full px-1.5 py-0.5 shadow">${emoji} ${count}</div>`;
+                        }
+                        reactionsHtml += `</div>`;
+                    }
+
+                    bubble.innerHTML = `
+                        ${mediaHtml}
+                        ${msg.content ? `<p class="text-slate-100 whitespace-pre-wrap">${msg.content}</p>` : ''}
+                        <div class="text-xs text-slate-400 text-right mt-1 flex justify-end items-center">
+                            ${time}
+                            ${readReceiptHtml}
+                        </div>
+                        ${reactionsHtml}
+                        <div class="action-buttons absolute top-0 ${isSent ? '-left-12' : '-right-12'} flex gap-1 opacity-0 transition-opacity">
+                            <button class="reaction-button text-slate-400 hover:text-slate-200" data-message-id="${msg.id}"><i class="far fa-smile"></i></button>
+                            <button class="reply-button text-slate-400 hover:text-slate-200" data-message-id="${msg.id}"><i class="fas fa-reply"></i></button>
+                        </div>
+                    `;
+                    
+                    el.appendChild(bubble);
+                    messagesArea.appendChild(el);
+                });
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            };
+            
+            // --- Lógica de Envio ---
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) { selectedFile = null; filePreviewContainer.innerHTML = ''; return; }
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    selectedFile = { data: event.target.result, type: file.type, name: file.name };
+                    filePreviewContainer.innerHTML = `Anexado: <span class="font-semibold">${file.name}</span>`;
+                };
+                reader.readAsDataURL(file);
+            });
+            sendMessageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!activeChatPartner) return;
+                const content = messageInput.value.trim();
+                if (!content && !selectedFile) return;
+                const messages = getMessages();
+                messages.push({ id: Date.now(), from: currentUser, to: activeChatPartner, content: content, file: selectedFile, timestamp: new Date().toISOString(), read: false, reactions: [], replyingTo: replyingToMessageId });
+                saveMessages(messages);
+                sendMessageForm.reset();
+                filePreviewContainer.innerHTML = '';
+                selectedFile = null;
+                cancelReply();
+                renderActiveChat();
+                renderLists();
+            });
+
+            // --- Lógica dos Modals ---
+            const openPostModal = (postId = null) => {
+                editingPostId = postId;
+                newPostForm.reset();
+                postMediaPreviewContainer.innerHTML = '';
+                selectedPostFile = null;
+
+                if (editingPostId) {
+                    postModalTitle.textContent = 'Editar Publicação';
+                    const posts = getPosts();
+                    const post = posts.find(p => p.id == editingPostId);
+                    if (post) {
+                        postTextInput.value = post.text;
+                        if (post.image) {
+                            selectedPostFile = post.image;
+                             postMediaPreviewContainer.innerHTML = `<img src="${selectedPostFile}" class="max-w-full h-auto max-h-40 rounded-lg mx-auto">`;
+                        }
+                    }
+                } else {
+                    postModalTitle.textContent = 'Criar Nova Publicação';
+                }
+                newPostModal.classList.remove('hidden');
+            };
+
+            cancelNewPostBtn.addEventListener('click', () => newPostModal.classList.add('hidden'));
+            postFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    selectedPostFile = event.target.result;
+                    postMediaPreviewContainer.innerHTML = `<img src="${selectedPostFile}" class="max-w-full h-auto max-h-40 rounded-lg mx-auto">`;
+                };
+                reader.readAsDataURL(file);
+            });
+            newPostForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = postTextInput.value.trim();
+                if (!text && !selectedPostFile) return;
+
+                const posts = getPosts();
+                if (editingPostId) {
+                    const postIndex = posts.findIndex(p => p.id == editingPostId);
+                    if (postIndex > -1) {
+                        posts[postIndex].text = text;
+                        posts[postIndex].image = selectedPostFile;
+                    }
+                } else {
+                    posts.push({
+                        id: Date.now(),
+                        author: currentUser,
+                        text: text,
+                        image: selectedPostFile,
+                        timestamp: new Date().toISOString(),
+                        likes: [],
+                        comments: []
+                    });
+                }
+                savePosts(posts);
+                newPostModal.classList.add('hidden');
+                renderLists();
+            });
+
+            const handleLike = (postId) => {
+                const posts = getPosts();
+                const postIndex = posts.findIndex(p => p.id == postId);
+                if (postIndex === -1) return;
+
+                const post = posts[postIndex];
+                const likeIndex = post.likes.indexOf(currentUser);
+
+                if (likeIndex > -1) {
+                    post.likes.splice(likeIndex, 1);
+                } else {
+                    post.likes.push(currentUser);
+                }
+                savePosts(posts);
+                renderLists();
+            };
+
+            const handleComment = (postId, commentText) => {
+                if (!commentText) return;
+                const posts = getPosts();
+                const postIndex = posts.findIndex(p => p.id == postId);
+                if (postIndex === -1) return;
+
+                posts[postIndex].comments.push({
+                    author: currentUser,
+                    text: commentText,
+                    timestamp: new Date().toISOString()
+                });
+                savePosts(posts);
+                renderLists();
+            };
+
+            const handleDeletePost = (postId) => {
+                let posts = getPosts();
+                posts = posts.filter(p => p.id !== Number(postId));
+                savePosts(posts);
+                renderLists();
+            };
+
+            const confirmDelete = (item, callback) => {
+                confirmDeleteText.textContent = `Tem a certeza que deseja apagar est${item === 'publicação' ? 'a' : 'e'} ${item}? Esta ação não pode ser desfeita.`;
+                deleteCallback = callback;
+                confirmDeleteModal.classList.remove('hidden');
+            };
+
+            cancelDeleteBtn.addEventListener('click', () => confirmDeleteModal.classList.add('hidden'));
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (deleteCallback) {
+                    deleteCallback();
+                }
+                confirmDeleteModal.classList.add('hidden');
+            });
+
+            // --- Lógica de Contactos ---
+            cancelAddContactBtn.addEventListener('click', () => addContactModal.classList.add('hidden'));
+            const handleAddContact = (contactName) => {
+                const users = getUsers();
+                const userIndex = users.findIndex(u => u.username.toLowerCase() === currentUser.toLowerCase());
+                if (userIndex > -1) {
+                    if (!users[userIndex].contacts) {
+                        users[userIndex].contacts = [];
+                    }
+                    if (!users[userIndex].contacts.includes(contactName)) {
+                        users[userIndex].contacts.push(contactName);
+                        saveUsers(users);
+                        renderAvailableContacts(contactSearchInput.value);
+                        renderLists();
+                    }
+                }
+            };
+            
+            const renderAvailableContacts = (searchTerm = '') => {
+                const allUsers = getUsers();
+                const me = allUsers.find(u => u.username.toLowerCase() === currentUser.toLowerCase());
+                if (!me) return;
+                const myContacts = me.contacts || [];
+                availableContactsList.innerHTML = '';
+                
+                const discoverableUsers = allUsers.filter(user => {
+                    const isMe = user.username.toLowerCase() === currentUser.toLowerCase();
+                    const isAlreadyContact = myContacts.includes(user.username);
+                    const matchesSearch = searchTerm ? user.username.toLowerCase().includes(searchTerm.toLowerCase()) : true;
+                    return !isMe && !isAlreadyContact && matchesSearch;
+                });
+
+                if (discoverableUsers.length === 0) {
+                    availableContactsList.innerHTML = `<p class="text-gray-500 text-center p-4">Nenhum utilizador novo para adicionar.</p>`;
+                    return;
+                }
+
+                discoverableUsers.forEach(user => {
+                    const userEl = document.createElement('div');
+                    userEl.className = 'p-3 flex items-center justify-between hover:bg-gray-700 transition border-b border-gray-700';
+                    userEl.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${user.pfp || defaultPfp}" class="w-10 h-10 rounded-full object-cover">
+                            <p class="font-semibold text-gray-200">${user.username}</p>
+                        </div>
+                        <button class="add-user-btn bg-sky-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-sky-700" data-username="${user.username}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    `;
+                    availableContactsList.appendChild(userEl);
+                });
+            };
+            contactSearchInput.addEventListener('input', (e) => renderAvailableContacts(e.target.value));
+            availableContactsList.addEventListener('click', (e) => {
+                const addBtn = e.target.closest('.add-user-btn');
+                if (addBtn) {
+                    handleAddContact(addBtn.dataset.username);
+                }
+            });
+
+
+            // --- Lógica do Status ---
+            statusFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    selectedStatusFile = { data: event.target.result, type: file.type, name: file.name };
+                    statusMediaPreviewContainer.innerHTML = '';
+                    let previewEl;
+                    if (file.type.startsWith('image/')) {
+                        previewEl = document.createElement('img');
+                    } else {
+                        previewEl = document.createElement('video');
+                        previewEl.controls = true;
+                    }
+                    previewEl.src = event.target.result;
+                    previewEl.className = 'max-w-full h-auto max-h-40 rounded-lg mx-auto';
+                    statusMediaPreviewContainer.appendChild(previewEl);
+                };
+                reader.readAsDataURL(file);
+            });
+            const openSetStatusModal = () => {
+                statusInput.value = '';
+                statusMediaPreviewContainer.innerHTML = '';
+                selectedStatusFile = null;
+                setStatusForm.reset();
+                setStatusModal.classList.remove('hidden');
+            };
+            cancelSetStatusBtn.addEventListener('click', () => setStatusModal.classList.add('hidden'));
+            setStatusForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = statusInput.value.trim();
+                if (!text && !selectedStatusFile) return;
+                const users = getUsers();
+                const userIndex = users.findIndex(u => u.username.toLowerCase() === currentUser.toLowerCase());
+                if (userIndex !== -1) {
+                    users[userIndex].status = { text: text, file: selectedStatusFile, timestamp: new Date().toISOString() };
+                    saveUsers(users);
+                }
+                setStatusModal.classList.add('hidden');
+                renderLists();
+            });
+            const openStatusViewer = (username) => {
+                const users = getUsers();
+                const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+                if (!user || !user.status) return;
+
+                const currentUserIndex = users.findIndex(u => u.username.toLowerCase() === currentUser.toLowerCase());
+                if (currentUserIndex !== -1) {
+                    if (!users[currentUserIndex].viewedStatus) {
+                        users[currentUserIndex].viewedStatus = [];
+                    }
+                    const viewedIndex = users[currentUserIndex].viewedStatus.findIndex(s => s.username === username);
+                    if (viewedIndex > -1) {
+                        users[currentUserIndex].viewedStatus[viewedIndex].timestamp = user.status.timestamp;
+                    } else {
+                        users[currentUserIndex].viewedStatus.push({ username: username, timestamp: user.status.timestamp });
+                    }
+                    saveUsers(users);
+                }
+
+                statusViewerPfp.src = user.pfp || defaultPfp;
+                statusViewerName.textContent = user.username;
+                statusViewerTime.textContent = timeAgo(user.status.timestamp);
+                statusViewerImage.classList.add('hidden');
+                statusViewerVideo.classList.add('hidden');
+                statusViewerText.classList.add('hidden');
+                if(user.status.file) {
+                    if(user.status.file.type.startsWith('image/')) {
+                        statusViewerImage.src = user.status.file.data;
+                        statusViewerImage.classList.remove('hidden');
+                    } else if (user.status.file.type.startsWith('video/')) {
+                        statusViewerVideo.src = user.status.file.data;
+                        statusViewerVideo.classList.remove('hidden');
+                    }
+                }
+                if(user.status.text) {
+                    statusViewerText.textContent = user.status.text;
+                    statusViewerText.classList.remove('hidden');
+                } else {
+                    statusViewerText.textContent = '';
+                }
+                viewStatusModal.classList.remove('hidden');
+                renderLists();
+            };
+            closeStatusViewerBtn.addEventListener('click', () => {
+                viewStatusModal.classList.add('hidden');
+                statusViewerVideo.pause();
+                statusViewerVideo.currentTime = 0;
+            });
+            
+            // --- Lógica de Reações e Respostas ---
+            messagesArea.addEventListener('click', (e) => {
+                const reactionBtn = e.target.closest('.reaction-button');
+                const replyBtn = e.target.closest('.reply-button');
+
+                if (reactionBtn) {
+                    currentMessageIdForReaction = reactionBtn.dataset.messageId;
+                    const rect = reactionBtn.getBoundingClientRect();
+                    reactionPanel.style.top = `${rect.top - 50}px`;
+                    reactionPanel.style.left = `${rect.left}px`;
+                    reactionPanel.classList.remove('hidden');
+                }
+
+                if (replyBtn) {
+                    handleReply(replyBtn.dataset.messageId);
+                }
+            });
+
+            const handleReply = (messageId) => {
+                replyingToMessageId = messageId;
+                const messages = getMessages();
+                const message = messages.find(m => m.id == messageId);
+                if (message) {
+                    let snippet = message.content;
+                    if (!snippet && message.file) {
+                        snippet = message.file.type.startsWith('image') ? '📷 Imagem' : '🎥 Vídeo';
+                    }
+                    replyPreviewText.textContent = snippet;
+                    replyPreviewContainer.classList.remove('hidden');
+                    messageInput.focus();
+                }
+            };
+
+            const cancelReply = () => {
+                replyingToMessageId = null;
+                replyPreviewContainer.classList.add('hidden');
+            };
+            cancelReplyBtn.addEventListener('click', cancelReply);
+
+            reactionPanel.addEventListener('click', (e) => {
+                if (e.target.tagName === 'SPAN') {
+                    const emoji = e.target.textContent;
+                    handleReaction(currentMessageIdForReaction, emoji);
+                    reactionPanel.classList.add('hidden');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!reactionPanel.contains(e.target) && !e.target.closest('.reaction-button')) {
+                    reactionPanel.classList.add('hidden');
+                }
+                if (!e.target.closest('.post-menu-container')) {
+                    document.querySelectorAll('.post-menu-options').forEach(menu => menu.classList.add('hidden'));
+                }
+            }, true);
+
+            const handleReaction = (messageId, emoji) => {
+                const messages = getMessages();
+                const messageIndex = messages.findIndex(m => m.id == messageId);
+                if (messageIndex === -1) return;
+
+                const message = messages[messageIndex];
+                if (!message.reactions) {
+                    message.reactions = [];
+                }
+
+                const existingReactionIndex = message.reactions.findIndex(r => r.user === currentUser);
+
+                if (existingReactionIndex > -1) {
+                    if (message.reactions[existingReactionIndex].emoji === emoji) {
+                        message.reactions.splice(existingReactionIndex, 1);
+                    } else {
+                        message.reactions[existingReactionIndex].emoji = emoji;
+                    }
+                } else {
+                    message.reactions.push({ emoji, user: currentUser });
+                }
+
+                saveMessages(messages);
+                renderActiveChat();
+            };
+
+            function timeAgo(timestamp) {
+                const now = new Date();
+                const past = new Date(timestamp);
+                const seconds = Math.floor((now - past) / 1000);
+                let interval = seconds / 3600;
+                if (interval > 1) return `há ${Math.floor(interval)} horas`;
+                interval = seconds / 60;
+                if (interval > 1) return `há ${Math.floor(interval)} minutos`;
+                return `há alguns segundos`;
+            }
+
+            // --- Inicialização e Eventos Globais ---
+            feedList.addEventListener('click', (e) => {
+                const target = e.target;
+                const likeBtn = target.closest('.like-btn');
+                const commentBtn = target.closest('.comment-btn');
+                const menuBtn = target.closest('.post-menu-btn');
+                const editBtn = target.closest('.edit-post-btn');
+                const deleteBtn = target.closest('.delete-post-btn');
+                const newPostBtn = target.closest('#new-post-btn');
+
+                if (likeBtn) handleLike(likeBtn.dataset.postId);
+                if (commentBtn) commentBtn.parentElement.nextElementSibling.classList.toggle('hidden');
+                if (menuBtn) menuBtn.nextElementSibling.classList.toggle('hidden');
+                if (editBtn) openPostModal(editBtn.dataset.postId);
+                if (deleteBtn) confirmDelete('publicação', () => handleDeletePost(deleteBtn.dataset.postId));
+                if (newPostBtn) openPostModal();
+            });
+
+            feedList.addEventListener('submit', (e) => {
+                if (e.target.classList.contains('comment-form')) {
+                    e.preventDefault();
+                    const postId = e.target.closest('.post-container').dataset.postId;
+                    const input = e.target.querySelector('input');
+                    const commentText = input.value.trim();
+                    if (commentText) {
+                        handleComment(postId, commentText);
+                        input.value = '';
+                    }
+                }
+            });
+
+            contactsList.addEventListener('click', (e) => {
+                const addBtn = e.target.closest('#add-contact-btn');
+                const contactItem = e.target.closest('[data-username]');
+
+                if (addBtn) {
+                    addContactModal.classList.remove('hidden');
+                    renderAvailableContacts();
+                } else if (contactItem) {
+                    openChat(contactItem.dataset.username);
+                }
+            });
+            
+            checkLogin();
+            setInterval(() => {
+                if(currentUser) {
+                    renderLists();
+                    if (activeChatPartner) {
+                        openChat(activeChatPartner);
+                    }
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
